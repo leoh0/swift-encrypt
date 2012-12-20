@@ -931,6 +931,12 @@ log_name = %(yarr)s'''
         self.assertEqual(
             utils.rsync_ip('::ffff:192.0.2.128'), '[::ffff:192.0.2.128]')
 
+    def test_import_class_builtin(self):
+        self.assertEqual(utils.import_class('__builtin__.object'), object)
+
+    def test_import_class_error(self):
+        self.assertRaises(ImportError, utils.import_class, 'some.not.found')
+
 
 class TestStatsdLogging(unittest.TestCase):
     def test_get_logger_statsd_client_not_specified(self):

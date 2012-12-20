@@ -20,6 +20,7 @@ import fcntl
 import os
 import pwd
 import sys
+import traceback
 import time
 import functools
 from hashlib import md5
@@ -1518,3 +1519,15 @@ def reiterate(iterable):
             return itertools.chain([chunk], iterable)
         except StopIteration:
             return []
+
+
+def import_class(import_str):
+    """Returns a class from a string including module and class"""
+    mod_str, _sep, class_str = import_str.rpartition('.')
+    try:
+        __import__(mod_str)
+        return getattr(sys.modules[mod_str], class_str)
+    except (ValueError, AttributeError):
+        raise ImportError('Class %s cannot be found (%s)' %
+                          (class_str,
+                           traceback.format_exception(*sys.exc_info())))

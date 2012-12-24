@@ -1522,7 +1522,14 @@ def reiterate(iterable):
 
 
 def import_class(import_str):
-    """Returns a class from a string including module and class"""
+    """
+    Returns a class from a string including module and class.
+
+    :param import_str: import path, e.g. 'httplib.HTTPConnection'
+    :returns: imported object
+    :raises: ImportError if import path is invalid or class doesn't
+             exists
+    """
     mod_str, _sep, class_str = import_str.rpartition('.')
     try:
         __import__(mod_str)
@@ -1531,3 +1538,23 @@ def import_class(import_str):
         raise ImportError('Class %s cannot be found (%s)' %
                           (class_str,
                            traceback.format_exception(*sys.exc_info())))
+
+
+def create_instance(import_str, base_class, *args, **kwargs):
+    """
+    Returns instance of class which imported by import path.
+
+    :param import_str: import path of class
+    :param base_class: to check the imported class is a subclass of base class
+    :param \*args: positional arguments for new instance
+    :param \*\*kwargs: keyword arguments for new instance
+    :returns: instance of imported class which instantiated with
+              arguments *args and **kwargs
+    """
+    object_class = import_class(import_str)
+    if not issubclass(object_class, base_class):
+        subclass_path = '.'.join((base_class.__module__, base_class.__name__))
+        raise ValueError("Class was imported by %r is not subclass of %r." %
+                         (import_str, subclass_path))
+    instance = object_class(*args, **kwargs)
+    return instance
